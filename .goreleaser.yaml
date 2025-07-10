@@ -1,0 +1,37 @@
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    ldflags:
+      - -s -w -X github.com/driif/openbao-plugin-secrets-consul/consul.pluginVersion=v{{.Version}}
+
+archives:
+  - format: zip
+    files:
+      - none*
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+signs:
+  - artifacts: checksum
+    args:
+      [
+        "-u",
+        "andrii.fedorchuk@secretz.io",
+        "--output",
+        "${signature}",
+        "--detach-sign",
+        "${artifact}",
+      ]
