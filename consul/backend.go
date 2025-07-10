@@ -1,4 +1,5 @@
 // Copyright (c) HashiCorp, Inc.
+// Copyright (c) Andrii Fedorchuk <andrii.fedorchuk@secretz.io>
 // SPDX-License-Identifier: MPL-2.0
 
 package consul
