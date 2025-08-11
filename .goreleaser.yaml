@@ -13,7 +13,7 @@ builds:
       - -s -w -X github.com/driif/openbao-plugin-secrets-consul/consul.pluginVersion=v{{.Version}}
 
 archives:
-  - format: zip
+  - formats: [zip]
     files:
       - none*
 
