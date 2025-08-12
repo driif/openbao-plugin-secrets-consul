@@ -25,6 +25,7 @@ func pathConfigAccess(b *backend) *framework.Path {
 			"address": {
 				Type:        framework.TypeString,
 				Description: "Consul server address",
+				Default:     "127.0.0.1:8500",
 			},
 
 			"scheme": {

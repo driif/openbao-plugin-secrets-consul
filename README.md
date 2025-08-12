@@ -43,7 +43,7 @@ Create roles that define the policies for generated tokens:
 
 ```sh
 $ bao write consul/roles/my-role \
-    policies="policy1,policy2" \
+    consul_policies="policy1,policy2" \
     ttl="1h" \
     max_ttl="24h"
 ```
@@ -126,9 +126,9 @@ Configure connection details for Consul
 - `address` (string) - Consul server address (default: "127.0.0.1:8500")
 - `token` (string) - Consul management token
 - `scheme` (string) - URI scheme (http/https, default: "http")
-- `ca_cert` (string) - CA certificate for TLS verification
-- `client_cert` (string) - Client certificate for TLS authentication
-- `client_key` (string) - Client key for TLS authentication
+- `ca_cert` (string) - CA certificate to use when verifying Consul server certificate, must be x509 PEM encoded.
+- `client_cert` (string) - Client certificate used for Consul's TLS communication, must be x509 PEM encoded and if this is set you need to also set `client_key`.
+- `client_key` (string) - Client key used for Consul's TLS communication, must be x509 PEM encoded and if this is set you need to also set `client_cert`.
 
 #### `GET /consul/config/access`
 Read current configuration (sensitive values redacted)
@@ -139,10 +139,19 @@ Read current configuration (sensitive values redacted)
 Create or update a role
 
 **Parameters:**
-- `policies` (string) - Comma-separated list of Consul ACL policies
-- `local` (bool) - Create local tokens (default: false)
+- `consul_policies` (string) - Comma-separated list of policies to attach to the token. Either `consul_policies` or `consul_roles` are required for Consul 1.5 and above, or just `consul_policies` if using Consul 1.4.
+- `consul_roles` (string) - Comma-separated list of Consul roles to attach to the token. Either `policies` or `consul_roles` are required for Consul 1.5 and above.
+- `consul_namespace` (string) - Indicates which namespace that the token will be created within. Available in Consul 1.7 and above. (default: "default")
+- `node_identities` (string) - Comma-separated list of Node Identities to attach to the token. Available in Consul 1.8.1 or above.
+- `partition` (string) - Indicates which admin partition that the token will be created within. Available in Consul 1.11 and above. (default: "default")
+- `service_identities` (string) - Comma-separated list of Service Identities to attach to the token. Available in Consul 1.5 or above.
+- `local` (bool) - Indicates that the token should not be replicated globally and instead be local to the current datacenter. Available in Consul 1.4 and above. (default: false)
+- `lease` (duration) - Deprecated: Use `ttl` instead.
 - `ttl` (duration) - Token time-to-live (default: 1h)
 - `max_ttl` (duration) - Maximum token time-to-live (default: 24h)
+- `policies` (string) - Deprecated: Use `consul_policies` instead.
+- `policy` (string) - Deprecated: Policy document, base64 encoded. Required for 'client' tokens. Required for Consul pre 1.4.
+- `token_type` (string) - Deprecated: Which type of token to create: 'client' or 'management'. If a 'management' token, the `policy`, `policies`, and `consul_roles` parameters are not required. (default: "client")
 
 #### `GET /consul/roles/<role_name>`
 Read role configuration
@@ -160,13 +169,14 @@ Generate a new Consul token for the specified role
 
 **Response:**
 - `token` (string) - The generated Consul ACL token
+- `accessor` (string) - The accessor of the generated Consul ACL token. Available in Consul 1.5 or above.
 - `lease_id` (string) - OpenBao lease ID for token management
 
 ## Development
 
 ### Prerequisites
 
-- Go 1.20 or higher
+- Go 1.24 or higher
 - Access to a Consul cluster for testing
 - OpenBao binary for integration testing
 
