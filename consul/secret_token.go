@@ -78,7 +78,7 @@ func (b *backend) secretTokenRevoke(ctx context.Context, req *logical.Request, d
 		// nothing we can do about it. We already can't revoke the lease
 		// properly if it has been renewed and this is documented pre-0.5.3
 		// behavior with a security bulletin about it.
-		return nil, nil
+		return nil, nil //nolint:nilnil
 	}
 
 	var version string
@@ -108,7 +108,7 @@ func (b *backend) secretTokenRevoke(ctx context.Context, req *logical.Request, d
 	switch version {
 	case "":
 		// Pre 1.4 tokens
-		_, err := c.ACL().Destroy(tokenRaw.(string), nil)
+		_, err := c.ACL().Destroy(tokenRaw.(string), nil) //nolint:staticcheck
 		if err != nil {
 			return nil, err
 		}
@@ -123,13 +123,13 @@ func (b *backend) secretTokenRevoke(ctx context.Context, req *logical.Request, d
 				// So we additionally match the exact request body.
 				// This might break in future versions of Consul, but at least it's safe.
 				statusError.Body == "Cannot find token to delete" {
-				return nil, nil
+				return nil, nil //nolint:nilnil
 			}
 			return nil, err
 		}
 	default:
-		return nil, fmt.Errorf("Invalid version string in data: %s", version)
+		return nil, fmt.Errorf("invalid version string in data: %s", version)
 	}
 
-	return nil, nil
+	return nil, nil //nolint:nilnil
 }

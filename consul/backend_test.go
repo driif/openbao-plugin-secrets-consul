@@ -273,6 +273,9 @@ func testBackendRenewRevoke14(t *testing.T, version string, policiesParam string
 		Data:      connData,
 	}
 	roleResp, err := b.HandleRequest(context.Background(), read)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	expectExtract := roleResp.Data["consul_policies"]
 	respExtract := roleResp.Data[policiesParam]
@@ -706,7 +709,7 @@ func testAccStepReadManagementToken(t *testing.T, name string, conf map[string]i
 			}
 
 			log.Printf("[WARN] Verifying that the generated token works...")
-			_, _, err = client.ACL().Create(&consulapi.ACLEntry{
+			_, _, err = client.ACL().Create(&consulapi.ACLEntry{ //nolint:staticcheck
 				Type: "management",
 				Name: "test2",
 			}, nil)
@@ -1445,7 +1448,7 @@ func TestBackendRenewRevokeRolesAndIdentities(t *testing.T) {
 		Path:      "config/access",
 		Data:      connData,
 	}
-	resp, err := b.HandleRequest(context.Background(), req)
+	_, err = b.HandleRequest(context.Background(), req)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1577,14 +1580,14 @@ func TestBackendRenewRevokeRolesAndIdentities(t *testing.T) {
 		req.Operation = logical.UpdateOperation
 		req.Path = fmt.Sprintf("roles/%s", tc.RoleName)
 		req.Data = tc.RoleData
-		resp, err = b.HandleRequest(context.Background(), req)
+		_, err = b.HandleRequest(context.Background(), req)
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		req.Operation = logical.ReadOperation
 		req.Path = fmt.Sprintf("creds/%s", tc.RoleName)
-		resp, err = b.HandleRequest(context.Background(), req)
+		resp, err := b.HandleRequest(context.Background(), req)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1631,7 +1634,7 @@ func TestBackendRenewRevokeRolesAndIdentities(t *testing.T) {
 		}
 
 		req.Operation = logical.RevokeOperation
-		resp, err = b.HandleRequest(context.Background(), req)
+		_, err = b.HandleRequest(context.Background(), req)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1641,6 +1644,9 @@ func TestBackendRenewRevokeRolesAndIdentities(t *testing.T) {
 		consulmgmtConfig.Address = connData["address"].(string)
 		consulmgmtConfig.Token = connData["token"].(string)
 		mgmtclient, err := consulapi.NewClient(consulmgmtConfig)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		q := &consulapi.QueryOptions{
 			Datacenter: "DC1",

@@ -14,19 +14,24 @@ import (
 
 func main() {
 	apiClientMeta := &api.PluginAPIClientMeta{}
+	logger := hclog.New(&hclog.LoggerOptions{})
+
 	flags := apiClientMeta.FlagSet()
-	flags.Parse(os.Args[1:])
+	err := flags.Parse(os.Args[1:])
+	if err != nil {
+		logger.Error("plugin shutting down", "error", err)
+		os.Exit(1)
+	}
 
 	tlsConfig := apiClientMeta.GetTLSConfig()
 	tlsProviderFunc := api.VaultPluginTLSProvider(tlsConfig)
 
-	if err := plugin.ServeMultiplex(&plugin.ServeOpts{
+	if err = plugin.ServeMultiplex(&plugin.ServeOpts{
 		BackendFactoryFunc: consul.Factory,
 		// set the TLSProviderFunc so that the plugin maintains backwards
 		// compatibility with Vault versions that don’t support plugin AutoMTLS
 		TLSProviderFunc: tlsProviderFunc,
 	}); err != nil {
-		logger := hclog.New(&hclog.LoggerOptions{})
 
 		logger.Error("plugin shutting down", "error", err)
 		os.Exit(1)
